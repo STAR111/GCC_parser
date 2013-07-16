@@ -9,7 +9,7 @@ gccConfigAndBuild()
 gccBuild()
 {
     pushd ./gcc-build;
-    ../gcc-misra-all/configure --enable-languages=c
+    ../gcc-misra-all/configure --disable-bootstrap --enable-languages=c
     make;
     popd;
 }
