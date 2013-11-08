@@ -4800,11 +4800,7 @@ c_parser_cast_expression (c_parser *parser, struct c_expr *after, tree prev_cast
   else
     {
       struct c_expr expr = c_parser_unary_expression (parser, prev_cast_type);
-      enum tree_code expr_code = TREE_CODE (expr.value);
-      tree ut = TREE_UNDERLYING_TYPE (expr.value);
-      
-      /* MISRA 10.5 */
-      ut = (ut == NULL) ? TREE_TYPE (expr.value) : ut;
+      /*enum tree_code expr_code = TREE_CODE (expr.valuemmZ ut;
       if ((expr_code == LSHIFT_EXPR && expr.parenthesis_num == 1 
 	   || expr_code == BIT_NOT_EXPR && expr.parenthesis_num == 0)
 	  && TREE_CODE (ut) == INTEGER_TYPE 
@@ -4814,7 +4810,7 @@ c_parser_cast_expression (c_parser *parser, struct c_expr *after, tree prev_cast
 	    {
 	      warning (1, "MISRA 10.5: the result of ~ or << of char or short int underlying type not casted to char etc. immediately");
 	    }
-	}
+	}*/
       //printf("tree code: %s, expr.parenthesis_num: %d\n", tree_code_name[expr_code], expr.parenthesis_num);
       return expr;
     }

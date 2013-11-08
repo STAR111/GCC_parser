@@ -1187,7 +1187,7 @@ static const struct option_map option_map[] =
    {"--write-dependencies", "-MD", 0},
    {"--write-user-dependencies", "-MMD", 0},
    {"--sei_sc","-sei_sc","a"},
-   {"--", "-f", "*j"},
+   {"--", "-f", "*j"}
    };
 
 

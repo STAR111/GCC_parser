@@ -3188,7 +3188,7 @@ build0_stat (enum tree_code code, tree tt MEM_STAT_DECL)
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   return t;
 }
@@ -3229,7 +3229,7 @@ build1_stat (enum tree_code code, tree type, tree node MEM_STAT_DECL)
   TREE_SET_CODE (t, code);
 
   TREE_TYPE (t) = type;
-  TREE_UNDERLYING_TYPE (t) = type;
+  //TREE_UNDERLYING_TYPE (t) = type;
   SET_EXPR_LOCATION (t, UNKNOWN_LOCATION);
   TREE_OPERAND (t, 0) = node;
   TREE_BLOCK (t) = NULL_TREE;
@@ -3315,7 +3315,7 @@ build2_stat (enum tree_code code, tree tt, tree arg0, tree arg1 MEM_STAT_DECL)
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   /* Below, we automatically set TREE_SIDE_EFFECTS and TREE_READONLY for the
      result based on those same flags for the arguments.  But if the
@@ -3355,7 +3355,7 @@ build3_stat (enum tree_code code, tree tt, tree arg0, tree arg1,
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   /* As a special exception, if COND_EXPR has NULL branches, we
      assume that it is a gimple statement and always consider
@@ -3391,7 +3391,7 @@ build4_stat (enum tree_code code, tree tt, tree arg0, tree arg1,
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   side_effects = TREE_SIDE_EFFECTS (t);
 
@@ -3419,7 +3419,7 @@ build5_stat (enum tree_code code, tree tt, tree arg0, tree arg1,
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   side_effects = TREE_SIDE_EFFECTS (t);
 
@@ -3449,7 +3449,7 @@ build7_stat (enum tree_code code, tree tt, tree arg0, tree arg1,
 
   t = make_node_stat (code PASS_MEM_STAT);
   TREE_TYPE (t) = tt;
-  TREE_UNDERLYING_TYPE (t) = tt;
+  //TREE_UNDERLYING_TYPE (t) = tt;
 
   side_effects = TREE_SIDE_EFFECTS (t);
 

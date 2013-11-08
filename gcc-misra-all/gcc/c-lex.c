@@ -645,7 +645,7 @@ interpret_integer (const cpp_token *token, unsigned int flags)
 	     (flags & CPP_N_UNSIGNED) ? "unsigned long" : "long");
 
   value = build_int_cst_wide (type, integer.low, integer.high);
-  TREE_UNDERLYING_TYPE (value) = underlying_type;
+  //TREE_UNDERLYING_TYPE (value) = underlying_type;
   //printf("+++ type precision: %d, underlying type precision: %d +++\n", TYPE_PRECISION (type) ,TYPE_PRECISION (underlying_type));
 
   /* Convert imaginary to a complex type.  */
@@ -1057,6 +1057,6 @@ lex_charconst (const cpp_token *token)
   else
     value = build_int_cst_wide (type, (cppchar_signed_t) result, -1);
   
-  TREE_UNDERLYING_TYPE (value) = char_type_node;
+  //TREE_UNDERLYING_TYPE (value) = char_type_node;
   return value;
 }

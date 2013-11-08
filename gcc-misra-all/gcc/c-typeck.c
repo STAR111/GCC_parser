@@ -102,7 +102,7 @@ static void set_nonincremental_init_from_string (tree);
 static tree find_init_member (tree);
 static void readonly_error (tree, enum lvalue_use);
 static int lvalue_or_else (const_tree, enum lvalue_use);
-//static int lvalue_p (const_tree);
+static int lvalue_p (const_tree);
 static void record_maybe_used_decl (tree);
 static int comptypes_internal (const_tree, const_tree);
 
@@ -2569,7 +2569,7 @@ convert_arguments (int nargs, tree *argarray,
       STRIP_TYPE_NOPS (val);
 
       val = require_complete_type (val);
-      
+
       if (type != 0)
 	{
 	  /* Formal parm type is specified by a function prototype.  */
@@ -2582,38 +2582,6 @@ convert_arguments (int nargs, tree *argarray,
 	    }
 	  else
 	    {
-	      /* MISRA 10.1(c) */
-	      if (rule[10][1])
-		{
-		  tree ut = TREE_UNDERLYING_TYPE (val);
-		  tree val_type = (ut == NULL) ? TREE_TYPE (val) : ut;
-
-		  if (!(TREE_CONSTANT (val) == 0 && !lvalue_p (val) 
-			&& TREE_CODE (val) != CALL_EXPR)) 
-		    // ignore complex expr, it has been delt in 10.1(b)
-		    {
-		      if (INTEGRAL_TYPE_P (val_type) && TREE_CONSTANT (val)==0
-			  // leave data loss to 10.1(a)
-			  && TYPE_PRECISION (val_type) < TYPE_PRECISION (type)
-			  && TYPE_UNSIGNED (val_type) == TYPE_UNSIGNED (type))
-			{
-			  warning (1, "MISRA 10.1 c: non-constant integer type argument implicitly converted to a different underlying type");
-			}
-		    }
-		}
-
-	      /* MISRA 10.2(c) */
-	      if (rule[10][2])
-		{
-		  tree val_type = TREE_TYPE (val);
-		  if (TREE_CODE (val_type) == REAL_TYPE 
-		      && (TREE_CODE (type) != TREE_CODE (val_type) 
-			|| TYPE_PRECISION (type) != TYPE_PRECISION (val_type)))
-		    {
-		      warning (1, "MISRA 10.2 c: floating type argument implicitly converted to a different type");
-		    }
-		}
-
 	      /* Optionally warn about conversions that
 		 differ from the default conversions.  */
 	      if (warn_traditional_conversion || warn_traditional)
@@ -3301,11 +3269,6 @@ build_unary_op (location_t location,
  return_build_unary_op:
   gcc_assert (ret != error_mark_node);
   protected_set_expr_location (ret, location);
-  {
-    tree ut = TREE_UNDERLYING_TYPE (xarg);
-    TREE_UNDERLYING_TYPE (ret) = (ut == NULL) ? TREE_TYPE (xarg) : ut;
-    /* pointer is not considered here and may cause problems */
-  }
   return ret;
 }
 
@@ -3313,7 +3276,7 @@ build_unary_op (location_t location,
    Lvalues can be assigned, unless their type has TYPE_READONLY.
    Lvalues can have their address taken, unless they have C_DECL_REGISTER.  */
 
-int
+static int
 lvalue_p (const_tree ref)
 {
   const enum tree_code code = TREE_CODE (ref);
@@ -3865,98 +3828,6 @@ build_c_cast (tree type, tree expr)
 	pedwarn (input_location, OPT_pedantic, "ISO C forbids "
 		 "conversion of object pointer to function pointer type");
 
-      /*
-       * BUAA SEI MISRA-C 2004 Rule 10.3
-       * The value of a complex expression of floating type
-       * shall only be cast to a floating type that is
-       * narrower or of the same size.
-       *
-       * Warn if the value is a complex expression of integer type and
-       * the target type is not of a same signedness or
-       * is wider than the value's size.
-       *
-       * 2011-01-07
-       * @author yangmushan
-       */
-      if(rule[10][3])
-        /*
-         * If the value is a complex expression of integer type.
-         */
-        if((TREE_CODE ( TREE_TYPE (value)) == INTEGER_TYPE && TREE_CODE (value) != VAR_DECL
-              && TREE_CODE (value) != INTEGER_CST && TREE_CODE (value) != CALL_EXPR))
-          /*
-           * If the target type is not a floating type or
-           * it is a floating type but wider than the value's size.
-           */
-          if(TYPE_UNSIGNED(type) != TYPE_UNSIGNED( TREE_TYPE (value)) ||
-              TYPE_PRECISION (type) > TYPE_PRECISION ( TREE_TYPE (value))){
-          warning(1,
-              "MISRA-C Rule 10.3: The value of a complex expression of integer type shall only be cast to a type of the same signedness that is no wider than the underlying type of the expression."
-              );
-      }
-      /* BUAA SEI MISRA-C 2004 Rule 10.3 END */
-
-      /*
-       * BUAA SEI MISRA-C 2004 Rule 10.4
-       * The value of a complex expression of floating type
-       * shall only be cast to a floating type that is
-       * narrower or of the same size.
-       *
-       * Warn if the value is a complex expression of floating type and
-       * the target type is not a floating type or
-       * is a floating type but wider than the value's size.
-       *
-       * 2011-01-07
-       * @author yangmushan
-       */
-      if(rule[10][4])
-        /*
-         * If the value is a complex expression of floating type.
-         */
-        if((TREE_CODE ( TREE_TYPE (value)) == REAL_TYPE && TREE_CODE (value) != VAR_DECL
-              && TREE_CODE (value) != REAL_CST && TREE_CODE (value) != CALL_EXPR))
-          /*
-           * If the target type is not a floating type or
-           * it is a floating type but wider than the value's size.
-           */
-          if(TREE_CODE (type) != REAL_TYPE ||
-              TYPE_PRECISION (type) > TYPE_PRECISION ( TREE_TYPE (value))){
-          warning(1,
-              "MISRA-C Rule 10.4: The value of a complex expression of floating type shall only be cast to a floating type that is narrower or of the same size."
-              );
-      }
-      /* BUAA SEI MISRA-C 2004 Rule 10.4 END */
-
-      /*
-       * BUAA SEI MISRA-C 2004 Rule 11.5
-       * A cast shall not be performed that removes
-       * any const or volatile qualification
-       * from the type addressed by a pointer.
-       *
-       *
-       * 2011-01-07
-       * @author yangmushan
-       */
-      if(rule[11][5])
-        /*
-         * If the conversion is between two pointer
-         */
-        if(TREE_CODE ( TREE_TYPE (value)) == POINTER_TYPE && TREE_CODE (type) == POINTER_TYPE){
-            tree p_type = TREE_TYPE(value);
-            tree t_type = type;
-            while(TREE_CODE(p_type) == POINTER_TYPE && TREE_CODE(t_type) == POINTER_TYPE){
-                p_type = TREE_TYPE(p_type);
-                t_type = TREE_TYPE(t_type);
-                if((TYPE_READONLY(p_type) && !TYPE_READONLY(t_type)) ||
-                   (TYPE_VOLATILE(p_type) && !TYPE_VOLATILE(t_type)) ){
-                    warning(1,
-                        "MISRA-C Rule 11.5: A cast shall not be performed that removes any const or volatile qualification from the type addressed by a pointer."
-                        );
-                }
-            }
-      }
-      /* BUAA SEI MISRA-C 2004 Rule 11.5 END */
-
       ovalue = value;
       value = convert (type, value);
 
@@ -4134,74 +4005,6 @@ convert_for_assignment (tree type, tree rhs, enum impl_conv errtype,
   enum tree_code coder;
   tree rname = NULL_TREE;
   bool objc_ok = false;
-
-  /* MISRA 10.1(b) place 1 of implicitly conversion */
-  if (rule[10][1])
-    {
-      if (TREE_CONSTANT (rhs) == 0 && !lvalue_p (rhs) 
-	  && TREE_CODE (rhs) != CALL_EXPR)
-	{       
-	  tree ut = TREE_UNDERLYING_TYPE (rhs);
-	  tree rhs_type = (ut == NULL) ? TREE_TYPE (rhs) : ut;
-
-	  //printf("+++ tree name: %s, type presion: %d, op num: %d +++\n", tree_code_name[TREE_CODE (rhs)], TYPE_PRECISION (ut), TREE_OPERAND_LENGTH (rhs));
-	  //printf("--- lhs type precision: %d, tree code: %d, unsigned: %d ---\n--- rhs type precision: %d, tree code: %d, unsigned: %d ---\n", TYPE_PRECISION (type), TREE_CODE (type), TYPE_UNSIGNED (type), TYPE_PRECISION (rhs_type), TREE_CODE (rhs_type), TYPE_UNSIGNED (rhs_type));
-
-	  if (INTEGRAL_TYPE_P (rhs_type) 
-	      && (TREE_CODE (rhs_type) != TREE_CODE (type) 
-		  || TYPE_PRECISION (rhs_type) != TYPE_PRECISION (type)
-		  || TYPE_UNSIGNED (rhs_type) != TYPE_UNSIGNED (type)))
-	    {
-	      warning (1, "MISRA 10.1 b: complex integer type expression implicitly converted to a different underlying type");
-	    }
-	}
-    }
-
-  /* MISRA 10.1(a) place 1 of implicitly conversion (and the only place for checking currently) */
-  if (rule[10][1])
-    {
-      tree ut = TREE_UNDERLYING_TYPE (rhs);
-      tree rhs_type = (ut == NULL) ? TREE_TYPE (rhs) : ut;
-      //printf("+++ tree name: %s, type presion: %d, op num: %d +++\n", tree_code_name[TREE_CODE (rhs)], TYPE_PRECISION (TREE_TYPE (rhs)), TREE_OPERAND_LENGTH (rhs));
-      if (INTEGRAL_TYPE_P (rhs_type)
-	  && (TREE_CODE(rhs_type) != TREE_CODE(type)
-	      || TYPE_PRECISION (rhs_type) > TYPE_PRECISION (type)
-	      || TYPE_UNSIGNED (rhs_type) != TYPE_UNSIGNED (type)))
-	{
-	  warning (1, "MISRA 10.1 a: integer type expression implicitly converted to a narrower or different signess underlying type");
-	}
-    }
-
-  /* MISRA 10.2(b) place 1 of implicitly conversion */
-  if (rule[10][2])
-    {
-      tree rhs_type = TREE_TYPE (rhs);
-      if (TREE_CODE (rhs_type) == REAL_TYPE 
-	  && (TREE_CONSTANT (rhs) == 0 
-	      && !lvalue_p (rhs) 
-	      && TREE_CODE (rhs) != CALL_EXPR))
-	{
-	  if (TREE_CODE (rhs_type) != TREE_CODE (type) 
-	      || TYPE_PRECISION (rhs_type) != TYPE_PRECISION (type))
-	    {
-	      warning (1, "MISRA 10.2 b: complex floating type expression implicitly converted to a different type");
-	    }
-	}
-    }
-
-  /* MISRA 10.2(a) place 1 of implicitly conversion */
-  if (rule[10][2])
-    {
-      tree rhs_type = TREE_TYPE (rhs);
-      if (TREE_CODE (rhs_type) == REAL_TYPE)
-	{
-	  if (TREE_CODE (rhs_type) != TREE_CODE (type) 
-	      || TYPE_PRECISION (rhs_type) > TYPE_PRECISION (type))
-	    {
-	      warning (1, "MISRA 10.2 a: floating type expression implicitly converted to a non-floating or narrower type");
-	    }
-	}
-    }
 
   if (errtype == ic_argpass)
     {
@@ -7436,38 +7239,6 @@ c_finish_return (tree retval)
 				       NULL_TREE, NULL_TREE, 0);
       tree res = DECL_RESULT (current_function_decl);
       tree inner;
-      
-      /* MISRA 10.1(d) */
-      if (rule[10][1])
-	{
-	  tree ut = TREE_UNDERLYING_TYPE (retval);
-	  tree retval_type = (ut == NULL) ? TREE_TYPE (retval) : ut;
-	  
-	  if (!(TREE_CONSTANT (retval) == 0 && !lvalue_p (retval) 
-		&& TREE_CODE (retval) != CALL_EXPR)) // ignore complex expr, it has been delt in 10.1(b)
-	    {
-	      if (INTEGRAL_TYPE_P (retval_type) && TREE_CONSTANT (retval) == 0
-		  // leave data loss to 10.1(a)
-		  && TYPE_PRECISION (retval_type) < TYPE_PRECISION (valtype)
-		  && TYPE_UNSIGNED (retval_type) == TYPE_UNSIGNED (valtype))
-		{
-		  warning (1, "MISRA 10.1 d: non-constant integer type return expression implicitly converted to a different underlying type");
-		}
-	    } 
-	}
-
-      /* MISRA 10.2(d) */
-      if (rule[10][2])
-	{
-	  tree retval_type = TREE_TYPE (retval);
-	  if (TREE_CODE (retval_type) == REAL_TYPE
-	      && (TREE_CODE (retval_type) != TREE_CODE (valtype) 
-		  || TYPE_PRECISION (retval_type) != TYPE_PRECISION (valtype)))
-	    {
-	      //printf("actual precision: %d, formal precision: %d\n", TYPE_PRECISION (retval_type), TYPE_PRECISION (valtype));
-	      warning (1, "MISRA 10.2 d: floating type return expression implicitly converted to a different type");
-	    }
-	}
 
       current_function_returns_value = 1;
       if (t == error_mark_node)
@@ -8247,7 +8018,6 @@ build_binary_op (location_t location, enum tree_code code,
 		 tree orig_op0, tree orig_op1, int convert_p)
 {
   tree type0, type1;
-  tree underlying_type0, underlying_type1;
   enum tree_code code0, code1;
   tree op0, op1;
   tree ret = error_mark_node;
@@ -8261,9 +8031,6 @@ build_binary_op (location_t location, enum tree_code code,
   /* Data type in which the computation is to be performed.
      In the simplest cases this is the common type of the arguments.  */
   tree result_type = NULL;
-
-  /* For misra 2004 10.1 */
-  tree result_underlying_type = NULL;
 
   /* Nonzero means operands have already been type-converted
      in whatever way is necessary.
@@ -8317,16 +8084,6 @@ build_binary_op (location_t location, enum tree_code code,
 
   type0 = TREE_TYPE (op0);
   type1 = TREE_TYPE (op1);
-
-  {
-    tree ut0 = TREE_UNDERLYING_TYPE (orig_op0);
-    tree ut1 = TREE_UNDERLYING_TYPE (orig_op1);
-    //if (ut0 != NULL) printf("--%s\n", tree_code_name[TREE_CODE (orig_op1)]);
-    underlying_type0 = (ut0 == NULL) ? TREE_TYPE (orig_op0) : ut0;
-    underlying_type1 = (ut1 == NULL) ? TREE_TYPE (orig_op1) : ut1;
-  }
-  //printf("--- %d\n", TREE_UNDERLYING_TYPE (orig_op1));
-  //printf("+++ %d\n", TREE_TYPE (orig_op1));
 
   /* The expression codes of the data types of the arguments tell us
      whether the arguments are integers, floating, pointers, etc.  */
@@ -8702,7 +8459,6 @@ build_binary_op (location_t location, enum tree_code code,
       if (shorten || common || short_compare)
 	{
 	  result_type = c_common_type (type0, type1);
-	  
 	  if (result_type == error_mark_node)
 	    return error_mark_node;
 	}
@@ -8828,40 +8584,6 @@ build_binary_op (location_t location, enum tree_code code,
  return_build_binary_op:
   gcc_assert (ret != error_mark_node);
   protected_set_expr_location (ret, location);
-  {
-    tree t0 = underlying_type0;
-    tree t1 = underlying_type1;
-    tree rt = c_common_type (t0, t1);
-
-    /* MISRA 10.1(b) place 2 of underlying implicit conversion */
-    if (rule[10][1])
-      {
-	if (rt != t0 && (TREE_CONSTANT (orig_op0) == 0 && !lvalue_p (orig_op0) 
-			 && TREE_CODE (orig_op0) != CALL_EXPR))
-	  {
-	    if (TREE_CODE (t0) != TREE_CODE (rt) 
-		|| TYPE_PRECISION (t0) != TYPE_PRECISION (rt)
-		|| TYPE_UNSIGNED (t0) != TYPE_UNSIGNED (rt))
-	      {
-		//printf("left tree code: %s, isLvalue: %d\n", tree_code_name[TREE_CODE (t0)], lvalue_p (orig_op0));
-		warning (1, "MISRA 10.1 b: complex integer type expression implicitly converted to a different underlying type");
-	      }
-	  }
-
-	if (rt != t1 && (TREE_CONSTANT (orig_op1) == 0 && !lvalue_p (orig_op1) 
-			 && TREE_CODE (orig_op1) != CALL_EXPR))
-	  {
-	    if (TREE_CODE (t1) != TREE_CODE (rt) 
-		|| TYPE_PRECISION (t1) != TYPE_PRECISION (rt)
-		|| TYPE_UNSIGNED (t1) != TYPE_UNSIGNED (rt))
-	      {
-		//printf("right tree code: %s, isLvalue: %d\n", tree_code_name[TREE_CODE (t1)], lvalue_p (orig_op1));
-		warning (1, "MISRA 10.1 b: complex integer type expression implicitly converted to a different underlying type");
-	      }
-	  }
-      }
-    TREE_UNDERLYING_TYPE (ret) = (rt == NULL) ? result_type : rt;
-  }
   return ret;
 }
 
