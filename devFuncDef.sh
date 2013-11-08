@@ -31,16 +31,16 @@ gccT1()
 gccT22()
 {
     pushd ./gcc-build/test;
-    echo ------------------10.2.c---------------------------------
+    echo ------------------2.2.c---------------------------------
     ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf 2.2.c;
     popd;
 }
 
-gcc41()
+gccT41()
 {
     pushd ./gcc-build/test;
-    echo ------------------10.5.c---------------------------------
-    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf -Wall 4.1.c;
+    echo ------------------4.1.c---------------------------------
+    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf  4.1.c;
     popd;
 }
 
