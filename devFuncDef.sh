@@ -10,7 +10,7 @@ gccBuild()
 {
     pushd ./gcc-build;
     ../gcc-misra-all/configure --disable-bootstrap --enable-languages=c
-    make;
+    make -j;
     popd;
 }
 
