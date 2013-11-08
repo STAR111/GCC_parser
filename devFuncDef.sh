@@ -28,27 +28,27 @@ gccT1()
     popd;
 }
 
-gccT2()
+gccT22()
 {
     pushd ./gcc-build/test;
     echo ------------------10.2.c---------------------------------
-    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf 10.2.c;
+    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf 2.2.c;
     popd;
 }
 
-gccT5()
+gcc41()
 {
     pushd ./gcc-build/test;
     echo ------------------10.5.c---------------------------------
-    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf -Wall 10.5.c;
+    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf -Wall 4.1.c;
     popd;
 }
 
 gccBT()
 {
     gccBuild;
-    gccT1;
-    gccT2;
-    gccT5;
+    #gccT1;
+    gccT22;
+    gccT41;
 }
 gccBT

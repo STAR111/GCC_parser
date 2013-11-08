@@ -61,4 +61,11 @@ UC_8 c = 'a';
     
     return 1;
     
+
+}
+
+int main()
+{
+    rule5();
+    return 0;
 }
