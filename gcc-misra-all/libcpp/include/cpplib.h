@@ -47,6 +47,7 @@ struct _cpp_file;
 
 /*array of rule,in c-opts.c*/
 extern int rule[22][18];
+int MISRA_errno;
 
 /* The first three groups, apart from '=', can appear in preprocessor
    expressions (+= and -= are used to indicate unary + and - resp.).

@@ -754,6 +754,14 @@ do_include_common (cpp_reader *pfile, enum include_type type)
       return;
     }
 
+    /*MISRA_C_2004 rule 20.5:The error indicator errno shall not be used.
+    * Author:Qin Jingjie
+    * Date:2013/11/18
+    */
+    if(rule[20][5]&&strcmp(fname,"errno.h")==0){
+    	MISRA_errno=1;
+    }
+
   if (!*fname)
   {
     cpp_error (pfile, CPP_DL_ERROR, "empty filename in #%s",

@@ -44,11 +44,29 @@ gccT41()
     popd;
 }
 
+gccT144()
+{
+	pushd ./gcc-build/test;
+    echo ------------------14.4.c---------------------------------
+    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf  14.4.c;
+    popd;
+}
+
+gccT205()
+{
+	pushd ./gcc-build/test;
+    echo ------------------20.5.c---------------------------------
+    ../gcc/xgcc -B ../gcc -I ../gcc/include -sei-sc sc.conf  20.5.c;
+    popd;	
+}
+
 gccBT()
 {
     gccBuild;
     #gccT1;
     gccT22;
     gccT41;
+    gccT144;
+    gccT205;
 }
 gccBT

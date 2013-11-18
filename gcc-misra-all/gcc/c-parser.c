@@ -211,6 +211,14 @@ c_lex_one_token (c_parser *parser, c_token *token)
       {
 	tree decl;
 
+  /*MISRA_C_2004 rule 20.5:The error indicator errno shall not be used.
+  * Author:Qin Jingjie
+  * Date:2013/11/18
+  */
+  if(rule[20][5]&&MISRA_errno==1&&strcmp(IDENTIFIER_POINTER(token->value),"__errno_location")==0){
+    warning_at(token->location,0,"violate MISRA_C_2004 rule 20.5:The error indicator errno shall not be used!");
+  }
+
 	bool objc_force_identifier = parser->objc_need_raw_identifier;
 	if (c_dialect_objc ())
 	  parser->objc_need_raw_identifier = false;
@@ -3700,6 +3708,14 @@ c_parser_statement_after_labels (c_parser *parser)
 	  c_parser_for_statement (parser);
 	  break;
 	case RID_GOTO:
+  /*MISRA_C_2004 rule 14.4:The goto statement shall not be used.
+  * Author:Qin Jingjie
+  * Date:2013/11/4
+  */
+  if(rule[14][4]){
+    warning_at(loc,0,"violate MISRA_C_2004 rule 14.4:The goto statement shall not be used!");
+  }
+  
 	  c_parser_consume_token (parser);
 	  if (c_parser_next_token_is (parser, CPP_NAME))
 	    {
